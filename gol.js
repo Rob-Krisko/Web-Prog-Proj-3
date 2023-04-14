@@ -1,3 +1,46 @@
+// this is the code for the popup
+
+const buttonOpen = document.querySelectorAll("[data-model-target]");
+const closeButton = document.querySelectorAll("[data-close-button]");
+const overlay = document.getElementById("overlay");
+
+buttonOpen.forEach((button) => {
+  button.addEventListener("click", () => {
+    const model = document.querySelector(button.dataset.modelTarget);
+    openmodel(model);
+  });
+});
+
+overlay.addEventListener("click", () => {
+  const models = document.querySelectorAll(".model.active");
+  models.forEach((model) => {
+    closemodel(model);
+  });
+});
+
+closeButton.forEach((button) => {
+  button.addEventListener("click", () => {
+    const model = button.closest(".model");
+    closemodel(model);
+  });
+});
+
+function openmodel(model) {
+  if (model == null) return;
+  model.classList.add("active");
+  overlay.classList.add("active");
+}
+
+function closemodel(model) {
+  if (model == null) return;
+  model.classList.remove("active");
+  overlay.classList.remove("active");
+}
+// this is the code for the popup
+
+
+
+
 const padding = 15;
 const cellSize = 15;
 const gridWidth = Math.floor((window.innerWidth - padding * 2) / cellSize);
