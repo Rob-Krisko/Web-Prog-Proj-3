@@ -6,7 +6,28 @@
   <title>Conway's Game of Life</title>
   <link rel="stylesheet" href="gol.css">
 </head>
-<body>
+ <body onload="openmodel(model)">
+    <!-- this is the code for the pop up-->
+
+    <div class="model" id="model">
+      <div class="model-head">
+        <div class="title">WELCOME!</div>
+        <button data-close-button class="close">X</button>
+      </div>
+      <div class="model-body">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat
+        laboriosam deleniti totam inventore? Magni fugiat fugit vitae! Expedita
+        in culpa possimus ratione fuga aliquid atque corporis ut nam sit ad
+        doloremque beatae, magni unde labore facere vel. Nam sed adipisci
+        distinctio cupiditate, reprehenderit, fuga dolore in hic error
+        voluptates repudiandae? Impedit recusandae magnam illo dolor! Culpa
+        amet, architecto dolor qui laboriosam sapiente nemo, odit dignissimos
+        est minus, sint unde magnam ex adipisci quod? Eveniet debitis ducimus
+        enim facere earum corrupti.
+      </div>
+    </div>
+    <div id="overlay"></div>
+    <!-- this is the code for the pop up-->
   <div id="game-container">
     <canvas id="game-canvas"></canvas>
     <div id="menu">
