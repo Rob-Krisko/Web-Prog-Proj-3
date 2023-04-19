@@ -1,271 +1,501 @@
-// this is the code for the popup
-
-const buttonOpen = document.querySelectorAll("[data-model-target]");
+const buttonOpen = document.querySelector("#open-popup");
 const closeButton = document.querySelectorAll("[data-close-button]");
 const overlay = document.getElementById("overlay");
 
-buttonOpen.forEach((button) => {
-  button.addEventListener("click", () => {
-    const model = document.querySelector(button.dataset.modelTarget);
+let resizing = false;
+let resizeDirection = null;
+let initialClickPosition = null;
+
+// part of troubleshooting, will likely end up removed
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById('start-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const next23GenBtn = document.getElementById('next23-btn');
+  const speedInput = document.getElementById('speed-input');
+  const populatePercentageInput = document.getElementById('populate-percentage-input');
+  const cellColorPicker = document.getElementById('cell-color-picker');
+  const gridColorPicker = document.getElementById('grid-color-picker');
+  const backgroundColorPicker = document.getElementById('background-color-picker');
+  const openPopupBtn = document.getElementById('open-popup');
+  const closeModalBtn = document.querySelector('[data-close-button]');
+  if (buttonOpen) {
+    const model = document.querySelector(buttonOpen.dataset.modalTarget);
     openmodel(model);
+  }
+
+
+  let isResizing = false;
+  let startX;
+  let startY;
+
+  if (buttonOpen) {
+    const model = document.querySelector(buttonOpen.dataset.modalTarget);
+    openModal();
+  }
+  
+
+  if (overlay) {
+    overlay.addEventListener("click", () => {
+      const models = document.querySelectorAll(".model.active");
+      models.forEach((model) => {
+        closemodel(model);
+      });
+    });
+  }
+
+  closeButton.forEach((button) => {
+    button.addEventListener("click", () => {
+      const model = button.closest(".model");
+      closemodel(model);
+    });
   });
-});
 
-overlay.addEventListener("click", () => {
-  const models = document.querySelectorAll(".model.active");
-  models.forEach((model) => {
-    closemodel(model);
+  function openmodel(model) {
+    if (model == null) return;
+    model.classList.add("active");
+    overlay.classList.add("active");
+  }
+
+  function closemodel(model) {
+    if (model == null) return;
+    model.classList.remove("active");
+    overlay.classList.remove("active");
+  }
+
+  const gameCanvas = document.getElementById('game-of-life-canvas');
+  const gameCtx = gameCanvas.getContext('2d');
+  let cellSize = 15;
+  let grid = [];
+  let intervalId = null;
+  let intervalSpeed = 100;
+  let cellColor = '#000000';
+  let gridColor = '#333333';
+  let backgroundColor = '#f0f0f0';
+
+  function toggleCellState(event) {
+    console.log('Canvas clicked');
+  
+    const x = Math.floor(event.offsetX / cellSize);
+    const y = Math.floor(event.offsetY / cellSize);
+  
+    console.log(`Toggling cell at x: ${x}, y: ${y}`);
+    console.log(`Before toggle: grid[${y}][${x}] = ${grid[y][x]}`);
+  
+    grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+  
+    console.log(`After toggle: grid[${y}][${x}] = ${grid[y][x]}`);
+    drawGrid(grid);
+  }
+  
+
+  function drawGrid(grid) {
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+  
+    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    gameCtx.fillStyle = backgroundColor;
+    gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+  
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        if (grid[y][x] === 1) {
+          gameCtx.fillStyle = cellColor;
+          gameCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  
+    drawGridLines();
+    drawResizeHandles();
+  }
+  
+
+  function createGrid() {
+    const gridWidth = Math.floor(gameCanvas.width / cellSize);
+    const gridHeight = Math.floor(gameCanvas.height / cellSize);
+  
+    const grid = new Array(gridHeight).fill(null).map(() => new Array(gridWidth).fill(0));
+  
+    return grid;
+  }
+  
+
+  function resizeGrid(grid, newWidth, newHeight, newCellSize) {
+    const newGrid = new Array(newHeight).fill(null).map(() => new Array(newWidth).fill(0));
+  
+    const copyWidth = Math.min(grid[0].length, newWidth);
+    const copyHeight = Math.min(grid.length, newHeight);
+  
+    for (let y = 0; y < copyHeight; y++) {
+      for (let x = 0; x < copyWidth; x++) {
+        newGrid[y][x] = grid[y][x];
+      }
+    }
+  
+    return newGrid;
+  }
+  
+
+  function populateGridRandomly(grid, percentage) {
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        grid[y][x] = Math.random() < percentage / 100 ? 1 : 0;
+      }
+    }
+  }
+
+  // game logic
+  function nextGeneration(grid) {
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+
+    const newGrid = createGrid();
+
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        const aliveNeighbors = countAliveNeighbors(grid, x, y);
+        const isAlive = grid[y][x] === 1;
+
+        if (isAlive && (aliveNeighbors === 2 || aliveNeighbors === 3)) {
+          newGrid[y][x] = 1;
+        } else if (!isAlive && aliveNeighbors === 3) {
+          newGrid[y][x] = 1;
+        }
+      }
+    }
+
+    return newGrid;
+  }
+
+  function countAliveNeighbors(grid, x, y) {
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+
+    let count = 0;
+
+    for (let yOffset = -1; yOffset <= 1; yOffset++) {
+      for (let xOffset = -1; xOffset <= 1; xOffset++) {
+        if (xOffset === 0 && yOffset === 0) {
+          continue;
+        }
+
+        const neighborX = x + xOffset;
+        const neighborY = y + yOffset;
+
+        if (
+          neighborX >= 0 &&
+          neighborX < gridWidth &&
+          neighborY >= 0 &&
+          neighborY < gridHeight &&
+          grid[neighborY][neighborX] === 1
+        ) {
+          count++;
+        }
+      }
+    }
+
+    return count;
+  }
+
+  function drawGridLines() {
+    gameCtx.strokeStyle = gridColor;
+    gameCtx.lineWidth = 1;
+
+    for (let x = 0; x <= gameCanvas.width; x += cellSize) {
+      gameCtx.beginPath();
+      gameCtx.moveTo(x, 0);
+      gameCtx.lineTo(x, gameCanvas.height);
+      gameCtx.stroke();
+    }
+
+    for (let y = 0; y <= gameCanvas.height; y += cellSize) {
+      gameCtx.beginPath();
+      gameCtx.moveTo(0, y);
+      gameCtx.lineTo(gameCanvas.width, y);
+      gameCtx.stroke();
+    }
+  }
+
+  // Add event listeners
+  startBtn.addEventListener('click', () => {
+    console.log('Start button clicked');
+    toggleGame();
   });
-});
 
-closeButton.forEach((button) => {
-  button.addEventListener("click", () => {
-    const model = button.closest(".model");
-    closemodel(model);
-  });
-});
+  resetBtn.addEventListener('click', resetGame);
+  nextBtn.addEventListener('click', advanceGeneration);
+  next23GenBtn.addEventListener('click', next23Generations);
+  speedInput.addEventListener('input', debounce(updateSpeed, 200));
+  populatePercentageInput.addEventListener('input', debounce(updatePopulationPercentage, 200));
+  cellColorPicker.addEventListener('input', updateCellColor);
+  gridColorPicker.addEventListener('input', updateGridColor);
+  backgroundColorPicker.addEventListener('input', updateBackgroundColor);
+  openPopupBtn.addEventListener('click', openModal);
+  closeModalBtn.addEventListener('click', closeModal);
+  gameCanvas.addEventListener("mousedown", handleMouseDown);
+  gameCanvas.addEventListener("mousemove", handleMouseMove);
+  gameCanvas.addEventListener("mouseup", handleMouseUp);
 
-function openmodel(model) {
-  if (model == null) return;
-  model.classList.add("active");
-  overlay.classList.add("active");
-}
+  let gridInitialized = false;
 
-function closemodel(model) {
-  if (model == null) return;
-  model.classList.remove("active");
-  overlay.classList.remove("active");
-}
-// this is the code for the popup
-
-
-
-
-const padding = 15;
-const cellSize = 15;
-const gridWidth = Math.floor((window.innerWidth - padding * 2) / cellSize);
-const gridHeight = Math.floor((window.innerHeight - padding * 2) / cellSize);
-
-let grid = createGrid(gridWidth, gridHeight);
-let intervalId = null;
-let intervalSpeed = 100;
-
-const startBtn = document.getElementById('start-btn');
-const resetBtn = document.getElementById('reset-btn');
-const nextBtn = document.getElementById('next-gen-btn');
-const next23Btn = document.getElementById('next-23-gen-btn');
-const populatePercentageInput = document.getElementById('populate-percentage');
-const speedInput = document.getElementById('speed-input');
-
-function createGrid(width, height) {
-  return new Array(height).fill(null).map(() => new Array(width).fill(0));
-}
-
-function populateGridRandomly(grid, percentage) {
-  for (let y = 0; y < gridHeight; y++) {
-    for (let x = 0; x < gridWidth; x++) {
-      grid[y][x] = Math.random() < percentage / 100 ? 1 : 0;
+  // to start the game after things are all loaded
+  function startGameOfLife() {
+    if (!gridInitialized) {
+      grid = createGrid();
+      gridInitialized = true;
     }
+    resizeCanvas();
+    populateGridRandomly(grid, 30);
+    drawGrid(grid);
   }
-}
-
-function nextGeneration(grid) {
-  const newGrid = createGrid(gridWidth, gridHeight);
-
-  for (let y = 0; y < gridHeight; y++) {
-    for (let x = 0; x < gridWidth; x++) {
-      const aliveNeighbors = countAliveNeighbors(grid, x, y);
-      const isAlive = grid[y][x] === 1;
-
-      if (isAlive && (aliveNeighbors === 2 || aliveNeighbors === 3)) {
-        newGrid[y][x] = 1;
-      } else if (!isAlive && aliveNeighbors === 3) {
-        newGrid[y][x] = 1;
-      }
+  
+  
+  function resizeCanvas() {
+    const padding = 15;
+    const newWidth = Math.floor((window.innerWidth - padding * 2) / cellSize) * cellSize;
+    const newHeight = Math.floor((window.innerHeight - padding * 2) / cellSize) * cellSize;
+  
+    gameCanvas.width = newWidth;
+    gameCanvas.height = newHeight;
+    grid = resizeGrid(grid, newWidth / cellSize, newHeight / cellSize, cellSize);
+    drawGrid(grid);
+  }
+  
+  // button functionality
+  function toggleGame() {
+    if (intervalId === null) {
+      intervalId = setInterval(() => {
+        grid = nextGeneration(grid);
+        drawGrid(grid);
+      }, intervalSpeed);
+      startBtn.textContent = 'Stop';
+    } else {
+      clearInterval(intervalId);
+      intervalId = null;
+      startBtn.textContent = 'Start';
     }
   }
 
-  return newGrid;
-}
-
-function countAliveNeighbors(grid, x, y) {
-  let count = 0;
-
-  for (let yOffset = -1; yOffset <= 1; yOffset++) {
-    for (let xOffset = -1; xOffset <= 1; xOffset++) {
-      if (xOffset === 0 && yOffset === 0) {
-        continue;
-      }
-
-      const xPos = x + xOffset;
-      const yPos = y + yOffset;
-
-      if (xPos >= 0 && xPos < gridWidth && yPos >= 0 && yPos < gridHeight && grid[yPos][xPos] === 1) {
-        count++;
-      }
-    }
-  }
-
-  return count;
-}
-
-function renderGrid(grid) {
-  const canvas = document.getElementById('game-canvas');
-
-  canvas.width = gridWidth * cellSize;
-  canvas.height = gridHeight * cellSize;
-  const ctx = canvas.getContext('2d');
-  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-color');
-  for (let y = 0; y < gridHeight; y++) {
-    for (let x = 0; x < gridWidth; x++) {
-      if (grid[y][x]) {
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--cell-color');
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-      }
-      ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
-    }
-  }
-}
-
-function update() {
-  grid = nextGeneration(grid);
-  renderGrid(grid);
-}
-
-function runGame() {
-  if (intervalId === null) {
-    intervalId = setInterval(update, intervalSpeed);
-  }
-}
-
-function pauseGame() {
-  if (intervalId !== null) {
+  function resetGame() {
     clearInterval(intervalId);
     intervalId = null;
+    startBtn.textContent = 'Start';
+    populateGridRandomly(grid, 30);
+    drawGrid(grid);
   }
-}
 
-function toggleGame() {
-  if (intervalId === null) {
-    runGame();
-    startBtn.innerText = "Pause";
-  } else {
-    pauseGame();
-    startBtn.innerText = "Start";
-  }
-}
-//Calculate the next generation then "draw" the grid
-function nextGen(){
-  if (intervalId == null){
-    update();
-  } else{
-    pauseGame();
-    update();
-    startBtn.innerText = "Start";
-  }
-}
-
-//Calculate the next 23 generations then "draw" the grid
-function next23Gen(){
-  if (intervalId !== null){
-    pauseGame();
-  }
-  for (let i = 0; i < 23; i++){
+  function advanceGeneration() {
     grid = nextGeneration(grid);
+    drawGrid(grid);
   }
-  renderGrid(grid);
-  startBtn.innerText = "Start";
-}
 
-function resetGame() {
-  pauseGame();
-  percentage = populatePercentageInput.value;
-  grid = createGrid(gridWidth, gridHeight);
-  populateGridRandomly(grid,percentage);
-  renderGrid(grid);
-  startBtn.innerText = "Start";
-}
-
-function onPopulatePercentageChange(e) {
-  const percentage = e.target.value;
-  populateGridRandomly(grid, percentage);
-  renderGrid(grid);
-}
-
-function onSpeedChange(e) {
-  const speed = e.target.value;
-  intervalSpeed = 1000 - speed;
-  if (intervalId !== null) {
-    pauseGame();
-    runGame();
+  function next23Generations() {
+    for (let i = 0; i < 23; i++) {
+      grid = nextGeneration(grid);
+    }
+    drawGrid(grid);
   }
-}
 
-const canvas = document.getElementById('game-canvas');
-canvas.addEventListener('click', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / cellSize);
-  const y = Math.floor((e.clientY - rect.top) / cellSize);
+  function updateSpeed(event) {
+    intervalSpeed = event.target.value;
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        grid = nextGeneration(grid);
+        drawGrid(grid);
+      }, intervalSpeed);
+    }
+  }
 
-  grid[y][x] = grid[y][x] ? 0 : 1;
-  renderGrid(grid);
-});
+  function updatePopulationPercentage(event) {
+    const percentage = event.target.value;
+    populateGridRandomly(grid, percentage);
+    drawGrid(grid);
+  }
 
-populateGridRandomly(grid, 30);
-renderGrid(grid);
+  function updateCellColor(event) {
+    cellColor = event.target.value;
+    drawGrid(grid);
+  }
+
+  function updateGridColor(event) {
+    gridColor = event.target.value;
+    drawGrid(grid);
+  }
+
+  function updateBackgroundColor(event) {
+    backgroundColor = event.target.value;
+    drawGrid(grid);
+  }
+
+  function openModal() {
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  // functions associated to resizing 
+  function isMouseOnEdge(event, padding) {
+    const handleSize = 10;
+    const x = event.clientX - gameCanvas.getBoundingClientRect().left;
+    const y = event.clientY - gameCanvas.getBoundingClientRect().top;
+  
+    return (
+      (x < padding + handleSize &&
+        ((y < padding + handleSize) || (y > gameCanvas.height - padding - handleSize))) ||
+      (x > gameCanvas.width - padding - handleSize &&
+        ((y < padding + handleSize) || (y > gameCanvas.height - padding - handleSize))) ||
+      (y < padding + handleSize &&
+        ((x < padding + handleSize) || (x > gameCanvas.width - padding - handleSize))) ||
+      (y > gameCanvas.height - padding - handleSize &&
+        ((x < padding + handleSize) || (x > gameCanvas.width - padding - handleSize)))
+    );
+  }
+  
+  
+  function getResizeDirection(event) {
+    const x = event.clientX - gameCanvas.getBoundingClientRect().left;
+    const y = event.clientY - gameCanvas.getBoundingClientRect().top;
+    const padding = 5;
+  
+    if (x < padding) {
+      if (y < padding) {
+        return "nw";
+      } else if (y > gameCanvas.height - padding) {
+        return "sw";
+      } else {
+        return "w";
+      }
+    } else if (x > gameCanvas.width - padding) {
+      if (y < padding) {
+        return "ne";
+      } else if (y > gameCanvas.height - padding) {
+        return "se";
+      } else {
+        return "e";
+      }
+    } else if (y < padding) {
+      return "n";
+    } else if (y > gameCanvas.height - padding) {
+      return "s";
+    } else {
+      return null;
+    }
+  }
+  
+  // functions to handle mouse events
+  function handleMouseDown(event) {
+    console.log("handleMouseDown");
+    if (isMouseOnEdge(event, 5)) {
+      resizing = true;
+      resizeDirection = getResizeDirection(event);
+      initialClickPosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+      console.log("Resizing started", resizeDirection);
+    } else {
+      toggleCellState(event);
+    }
+  }
+  
+  function handleMouseMove(event) {
+    if (isResizing) {
+      console.log("Resizing in progress");
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+  
+      if (resizeDirection === "horizontal" || resizeDirection === "both") {
+        const newCanvasWidth = Math.max(minCanvasWidth, canvasWidth + dx);
+        const newGridWidth = Math.floor(newCanvasWidth / newCellSize);
+        grid = resizeGrid(grid, newGridWidth, grid.length, newCellSize);
+        gameCanvas.width = newCanvasWidth;
+        canvasWidth = newCanvasWidth;
+      }
+  
+      if (resizeDirection === "vertical" || resizeDirection === "both") {
+        const newCanvasHeight = Math.max(minCanvasHeight, canvasHeight + dy);
+        const newGridHeight = Math.floor(newCanvasHeight / newCellSize);
+        grid = resizeGrid(grid, grid[0].length, newGridHeight, newCellSize);
+        gameCanvas.height = newCanvasHeight;
+        canvasHeight = newCanvasHeight;
+      }
+  
+      startX = event.clientX;
+      startY = event.clientY;
+  
+      drawGrid(grid);
+    }
+  }
+  
+  
+  function handleMouseUp(event) {
+    if (isResizing) {
+      isResizing = false;
+      resizeDirection = "none";
+      resizeCanvas(gameCanvas.width, gameCanvas.height);
+    }
+  }
+
+  // drawing the resize handles onto the canvas
+  function drawResizeHandles() {
+    const handleSize = 10;
+    const lineWidth = 2;
+    const padding = 1;
 
 
-
-resetBtn.addEventListener('click', resetGame);
-startBtn.addEventListener('click', toggleGame);
-nextBtn.addEventListener('click', nextGen);
-next23Btn.addEventListener('click', next23Gen);
-populatePercentageInput.addEventListener('input', onPopulatePercentageChange);
-speedInput.addEventListener('input', onSpeedChange);
-
-// Menu toggle
-const menuToggle = document.getElementById('menu-toggle');
-const menu = document.getElementById('menu');
-
-menuToggle.addEventListener('click', () => {
-  menu.classList.toggle('hidden');
-});
-
-// Color picker logic
-const cellColorPicker = document.getElementById('cell-color-picker');
-const cellColorOptions = document.querySelectorAll('.cell-color-option');
-
-cellColorPicker.addEventListener('click', () => {
-  cellColorOptions.forEach((option) => {
-    option.style.display = option.style.display === 'none' ? 'block' : 'none';
-  });
-});
-
-cellColorOptions.forEach((option) => {
-  option.addEventListener('click', () => {
-    const color = option.dataset.color;
-    document.documentElement.style.setProperty('--cell-color', color);
-    cellColorOptions.forEach((option) => {
-      option.style.display = 'none';
-    });
-  });
-});
-
-const bgColorPicker = document.getElementById('bg-color-picker');
-const bgColorOptions = document.querySelectorAll('.bg-color-option');
-
-bgColorPicker.addEventListener('click', () => {
-  bgColorOptions.forEach((option) => {
-    option.style.display = option.style.display === 'none' ? 'block' : 'none';
-  });
-});
-
-bgColorOptions.forEach((option) => {
-  option.addEventListener('click', () => {
-    const color = option.dataset.color;
-    document.documentElement.style.setProperty('--bg-color', color);
-    bgColorOptions.forEach((option) => {
-      option.style.display = 'none';
-    });
-  });
+    gameCtx.save();
+    gameCtx.lineWidth = lineWidth;
+    gameCtx.strokeStyle = 'black';
+  
+    // Top-left handle
+    gameCtx.beginPath();
+    gameCtx.moveTo(padding, padding + handleSize);
+    gameCtx.lineTo(padding, padding);
+    gameCtx.lineTo(padding + handleSize, padding);
+    gameCtx.stroke();
+  
+    // Top-right handle
+    gameCtx.beginPath();
+    gameCtx.moveTo(gameCanvas.width - padding - handleSize, padding);
+    gameCtx.lineTo(gameCanvas.width - padding, padding);
+    gameCtx.lineTo(gameCanvas.width - padding, padding + handleSize);
+    gameCtx.stroke();
+  
+    // Bottom-left handle
+    gameCtx.beginPath();
+    gameCtx.moveTo(padding, gameCanvas.height - padding - handleSize);
+    gameCtx.lineTo(padding, gameCanvas.height - padding);
+    gameCtx.lineTo(padding + handleSize, gameCanvas.height - padding);
+    gameCtx.stroke();
+  
+    // Bottom-right handle
+    gameCtx.beginPath();
+    gameCtx.moveTo(gameCanvas.width - padding - handleSize, gameCanvas.height - padding);
+    gameCtx.lineTo(gameCanvas.width - padding, gameCanvas.height - padding);
+    gameCtx.lineTo(gameCanvas.width - padding, gameCanvas.height - padding - handleSize);
+    gameCtx.stroke();
+    
+  
+    gameCtx.restore();
+  }
+  
+  
+  
+  startGameOfLife();
 });
