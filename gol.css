@@ -14,10 +14,15 @@ body {
   box-sizing: border-box;
 }
 
+
+
 #game-canvas {
+  position: absolute;
   border: 1px solid #333;
   flex-shrink: 0;
+  user-select: none;
 }
+
 
 #menu {
   position: fixed;
@@ -76,7 +81,7 @@ body {
 
 /* this is the css for the pop up */
 
-.model {
+.modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -90,32 +95,32 @@ body {
   max-width: 80%;
 }
 
-.model.active {
+.modal.active {
   transform: translate(-50%, -50%) scale(1);
 }
 
-.model-head {
+.modal-head {
   padding: 10px 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid black;
 }
-.model-head .title {
+.modal-head .title {
   font-size: 1.25rem;
   font-weight: bold;
 }
 
-.model-head .close {
+.modal-head .close {
   cursor: pointer;
   border: none;
   outline: none;
   background: none;
-  font-weight: 1.25rem;
+  font-size: 1.25rem;
   font-weight: bold;
 }
 
-.model-body {
+.modal-body {
   padding: 10px 15px;
 }
 
@@ -135,5 +140,5 @@ body {
   opacity: 1;
   pointer-events: all;
 }
-/* this is the css for the pop up */
+
 
