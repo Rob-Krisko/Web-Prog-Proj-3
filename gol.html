@@ -5,63 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conway's Game of Life</title>
   <link rel="stylesheet" href="gol.css">
+  <script src="gol.js" defer></script>
 </head>
- <body onload="openmodel(model)">
-    <!-- this is the code for the pop up-->
-
-    <div class="model" id="model">
-      <div class="model-head">
-        <div class="title">WELCOME!</div>
-        <button data-close-button class="close">X</button>
-      </div>
-      <div class="model-body">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat
-        laboriosam deleniti totam inventore? Magni fugiat fugit vitae! Expedita
-        in culpa possimus ratione fuga aliquid atque corporis ut nam sit ad
-        doloremque beatae, magni unde labore facere vel. Nam sed adipisci
-        distinctio cupiditate, reprehenderit, fuga dolore in hic error
-        voluptates repudiandae? Impedit recusandae magnam illo dolor! Culpa
-        amet, architecto dolor qui laboriosam sapiente nemo, odit dignissimos
-        est minus, sint unde magnam ex adipisci quod? Eveniet debitis ducimus
-        enim facere earum corrupti.
-      </div>
+<body>
+  <!-- this is the code for the pop up-->
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="title">WELCOME!</div>
+      <button data-close-button class="close">X</button>
     </div>
-    <div id="overlay"></div>
-    <!-- this is the code for the pop up-->
+    <div class="modal-body">
+      text just for something.
+    </div>
+  </div>
+  <div id="overlay"></div>
+  <!-- this is the code for the pop up-->
   <div id="game-container">
-    <canvas id="game-canvas"></canvas>
+      <canvas id="game-of-life-canvas"></canvas>   
     <div id="menu">
       <div id="controls">
         <button id="start-btn">Start</button>
         <button id="reset-btn">Reset</button>
-        <button id="next-gen-btn">Next generation</button>
-        <button id="next-23-gen-btn">Next 23 generations</button>     
-        <label for="populate-percentage">Population Percentage:</label>
-        <input type="range" id="populate-percentage" min="0" max="100" step="1" value="30">
+        <button id="next-btn">Next generation</button>
+        <button id="next23-btn">Next 23 generations</button>     
+        <label for="populate-percentage-input">Population Percentage:</label>
+        <input type="range" id="populate-percentage-input" min="0" max="100" step="1" value="30">
         <label for="speed-input">Speed:</label>
         <input type="range" id="speed-input" min="0" max="1000" step="10" value="100">
-        <button id="change-cell-color">Change Cell Color</button>
-        <div id="cell-color-options" class="color-options hidden">
-          <button class="color-option" style="background-color: #FFA07A;"></button>
-          <button class="color-option" style="background-color: #90EE90;"></button>
-          <button class="color-option" style="background-color: #ADD8E6;"></button>
-          <button class="color-option" style="background-color: #FFD700;"></button>
-          <button class="color-option" style="background-color: #FFC0CB;"></button>
-          <button class="color-option" style="background-color: #C0C0C0;"></button>
-        </div>
-        <button id="change-background-color">Change Background Color</button>
-        <div id="background-color-options" class="color-options hidden">
-          <button class="color-option" style="background-color: #E6E6FA;"></button>
-          <button class="color-option" style="background-color: #FFF0F5;"></button>
-          <button class="color-option" style="background-color: #FFE4B5;"></button>
-          <button class="color-option" style="background-color: #F0E68C;"></button>
-          <button class="color-option" style="background-color: #F5F5DC;"></button>
-          <button class="color-option" style="background-color: #F0FFFF;"></button>
-        </div>
+        <label for="cell-color-picker">Cell Color:</label>
+        <input type="color" id="cell-color-picker">
+        <label for="grid-color-picker">Grid Color:</label>
+        <input type="color" id="grid-color-picker">
+        <label for="background-color-picker">Background Color:</label>
+        <input type="color" id="background-color-picker">
+        <button id="open-popup" data-modal-target="#modal">Open Popup</button>
       </div>
     </div>
     <button id="menu-toggle">Menu</button>
   </div>
-  <script src="gol.js"></script>
 </body>
 </html>
