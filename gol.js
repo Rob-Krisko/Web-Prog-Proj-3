@@ -1,11 +1,8 @@
 const buttonOpen = document.querySelector("#open-popup");
 const closeButton = document.querySelectorAll("[data-close-button]");
 const overlay = document.getElementById("overlay");
-
-let resizing = false;
-let resizeDirection = null;
-let initialClickPosition = null;
-
+const minCellSize = 5;
+const maxCellSize = 50;
 // part of troubleshooting, will likely end up removed
 function debounce(func, wait) {
   let timeout;
@@ -32,6 +29,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const model = document.querySelector(buttonOpen.dataset.modalTarget);
     openmodel(model);
   }
+  const cellSizeSlider = document.getElementById('cell-size-slider');
 
 
   let isResizing = false;
@@ -116,7 +114,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   
     drawGridLines();
-    drawResizeHandles();
   }
   
 
@@ -245,9 +242,9 @@ window.addEventListener("DOMContentLoaded", () => {
   backgroundColorPicker.addEventListener('input', updateBackgroundColor);
   openPopupBtn.addEventListener('click', openModal);
   closeModalBtn.addEventListener('click', closeModal);
-  gameCanvas.addEventListener("mousedown", handleMouseDown);
-  gameCanvas.addEventListener("mousemove", handleMouseMove);
-  gameCanvas.addEventListener("mouseup", handleMouseUp);
+  cellSizeSlider.addEventListener('input', updateCellSize);
+  gameCanvas.addEventListener("click", toggleCellState);
+
 
   let gridInitialized = false;
 
@@ -271,8 +268,21 @@ window.addEventListener("DOMContentLoaded", () => {
     gameCanvas.width = newWidth;
     gameCanvas.height = newHeight;
     grid = resizeGrid(grid, newWidth / cellSize, newHeight / cellSize, cellSize);
+    drawGrid(grid); // Pass grid parameter here
+  }
+  
+  
+  function updateCellSize(event) {
+    const newCellSize = parseInt(event.target.value);
+    const newWidth = Math.floor(gameCanvas.width / newCellSize);
+    const newHeight = Math.floor(gameCanvas.height / newCellSize);
+    const adjustedCellSize = Math.min(gameCanvas.width / newWidth, gameCanvas.height / newHeight);
+  
+    grid = resizeGrid(grid, newWidth, newHeight, adjustedCellSize);
+    cellSize = adjustedCellSize;
     drawGrid(grid);
   }
+  
   
   // button functionality
   function toggleGame() {
@@ -348,154 +358,6 @@ window.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     document.getElementById('modal').classList.remove('active');
   }
-
-  // functions associated to resizing 
-  function isMouseOnEdge(event, padding) {
-    const handleSize = 10;
-    const x = event.clientX - gameCanvas.getBoundingClientRect().left;
-    const y = event.clientY - gameCanvas.getBoundingClientRect().top;
-  
-    return (
-      (x < padding + handleSize &&
-        ((y < padding + handleSize) || (y > gameCanvas.height - padding - handleSize))) ||
-      (x > gameCanvas.width - padding - handleSize &&
-        ((y < padding + handleSize) || (y > gameCanvas.height - padding - handleSize))) ||
-      (y < padding + handleSize &&
-        ((x < padding + handleSize) || (x > gameCanvas.width - padding - handleSize))) ||
-      (y > gameCanvas.height - padding - handleSize &&
-        ((x < padding + handleSize) || (x > gameCanvas.width - padding - handleSize)))
-    );
-  }
-  
-  
-  function getResizeDirection(event) {
-    const x = event.clientX - gameCanvas.getBoundingClientRect().left;
-    const y = event.clientY - gameCanvas.getBoundingClientRect().top;
-    const padding = 5;
-  
-    if (x < padding) {
-      if (y < padding) {
-        return "nw";
-      } else if (y > gameCanvas.height - padding) {
-        return "sw";
-      } else {
-        return "w";
-      }
-    } else if (x > gameCanvas.width - padding) {
-      if (y < padding) {
-        return "ne";
-      } else if (y > gameCanvas.height - padding) {
-        return "se";
-      } else {
-        return "e";
-      }
-    } else if (y < padding) {
-      return "n";
-    } else if (y > gameCanvas.height - padding) {
-      return "s";
-    } else {
-      return null;
-    }
-  }
-  
-  // functions to handle mouse events
-  function handleMouseDown(event) {
-    console.log("handleMouseDown");
-    if (isMouseOnEdge(event, 5)) {
-      resizing = true;
-      resizeDirection = getResizeDirection(event);
-      initialClickPosition = {
-        x: event.clientX,
-        y: event.clientY,
-      };
-      console.log("Resizing started", resizeDirection);
-    } else {
-      toggleCellState(event);
-    }
-  }
-  
-  function handleMouseMove(event) {
-    if (isResizing) {
-      console.log("Resizing in progress");
-      const dx = event.clientX - startX;
-      const dy = event.clientY - startY;
-  
-      if (resizeDirection === "horizontal" || resizeDirection === "both") {
-        const newCanvasWidth = Math.max(minCanvasWidth, canvasWidth + dx);
-        const newGridWidth = Math.floor(newCanvasWidth / newCellSize);
-        grid = resizeGrid(grid, newGridWidth, grid.length, newCellSize);
-        gameCanvas.width = newCanvasWidth;
-        canvasWidth = newCanvasWidth;
-      }
-  
-      if (resizeDirection === "vertical" || resizeDirection === "both") {
-        const newCanvasHeight = Math.max(minCanvasHeight, canvasHeight + dy);
-        const newGridHeight = Math.floor(newCanvasHeight / newCellSize);
-        grid = resizeGrid(grid, grid[0].length, newGridHeight, newCellSize);
-        gameCanvas.height = newCanvasHeight;
-        canvasHeight = newCanvasHeight;
-      }
-  
-      startX = event.clientX;
-      startY = event.clientY;
-  
-      drawGrid(grid);
-    }
-  }
-  
-  
-  function handleMouseUp(event) {
-    if (isResizing) {
-      isResizing = false;
-      resizeDirection = "none";
-      resizeCanvas(gameCanvas.width, gameCanvas.height);
-    }
-  }
-
-  // drawing the resize handles onto the canvas
-  function drawResizeHandles() {
-    const handleSize = 10;
-    const lineWidth = 2;
-    const padding = 1;
-
-
-    gameCtx.save();
-    gameCtx.lineWidth = lineWidth;
-    gameCtx.strokeStyle = 'black';
-  
-    // Top-left handle
-    gameCtx.beginPath();
-    gameCtx.moveTo(padding, padding + handleSize);
-    gameCtx.lineTo(padding, padding);
-    gameCtx.lineTo(padding + handleSize, padding);
-    gameCtx.stroke();
-  
-    // Top-right handle
-    gameCtx.beginPath();
-    gameCtx.moveTo(gameCanvas.width - padding - handleSize, padding);
-    gameCtx.lineTo(gameCanvas.width - padding, padding);
-    gameCtx.lineTo(gameCanvas.width - padding, padding + handleSize);
-    gameCtx.stroke();
-  
-    // Bottom-left handle
-    gameCtx.beginPath();
-    gameCtx.moveTo(padding, gameCanvas.height - padding - handleSize);
-    gameCtx.lineTo(padding, gameCanvas.height - padding);
-    gameCtx.lineTo(padding + handleSize, gameCanvas.height - padding);
-    gameCtx.stroke();
-  
-    // Bottom-right handle
-    gameCtx.beginPath();
-    gameCtx.moveTo(gameCanvas.width - padding - handleSize, gameCanvas.height - padding);
-    gameCtx.lineTo(gameCanvas.width - padding, gameCanvas.height - padding);
-    gameCtx.lineTo(gameCanvas.width - padding, gameCanvas.height - padding - handleSize);
-    gameCtx.stroke();
-    
-  
-    gameCtx.restore();
-  }
-  
-  
   
   startGameOfLife();
 });
