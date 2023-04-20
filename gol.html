@@ -11,11 +11,29 @@
   <!-- this is the code for the pop up-->
   <div class="modal" id="modal">
     <div class="modal-head">
-      <div class="title">WELCOME!</div>
+      <div class="title">Welcome to Conway's Game of Life!</div>
       <button data-close-button class="close">X</button>
     </div>
+    <!-- this is the instructions portion of the pop up-->
     <div class="modal-body">
-      text just for something.
+      <b>Object of the game:</b> <br> Find and create unpredictable patterns that are created over generations.
+      <div class="row">
+        <div class="column">
+          <b>Rules:</b><br><br>
+          - If a live cell has less than two live neighbors it dies.<br><br><br><br>
+          - If a live cell has three or more live neighbors it dies.<br><br><br><br>
+          - If a live cell has two or three live neighbors it lives to the next generation.<br><br><br>
+          - Any dead cell with three live neighbors comes alive.<br>
+          <br><a href="http://pi.math.cornell.edu/~lipa/mec/lesson6.html">More Instructions</a>
+        </div>
+        <div class="column">
+          <b>Examples:</b><br>
+          <img src="one.png" alt="example 1" display: block><br>
+          <img src="two.png" alt="example 2" display: block><br>
+          <img src="three.png" alt="example 3" display: block><br>
+          <img src="four.png" alt="example 4" display: block><br>
+        </div>
+      </div>
     </div>
   </div>
   <div id="overlay"></div>

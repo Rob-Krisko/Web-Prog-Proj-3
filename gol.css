@@ -80,7 +80,6 @@ body {
 }
 
 /* this is the css for the pop up */
-
 .modal {
   position: fixed;
   top: 50%;
@@ -93,6 +92,7 @@ body {
   background-color: aqua;
   width: 500px;
   max-width: 80%;
+  text-align: center;
 }
 
 .modal.active {
@@ -122,6 +122,27 @@ body {
 
 .modal-body {
   padding: 10px 15px;
+}
+
+/* Column and row added to insert inside .modal for the rules on left
+and examples on the right */
+.row {
+  display: flex;
+}
+
+.column{
+  flex: 50%;
+  padding: 10px;
+  height: 400px;
+}
+
+/* Styling link to further instructions */
+a:visited{
+  color: black;
+}
+
+a:hover {
+  color: blue;
 }
 
 #overlay {
