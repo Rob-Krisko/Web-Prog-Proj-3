@@ -3,6 +3,8 @@ const closeButton = document.querySelectorAll("[data-close-button]");
 const overlay = document.getElementById("overlay");
 const minCellSize = 5;
 const maxCellSize = 50;
+let cursorPosition = { x: 0, y: 0 };
+
 // part of troubleshooting, will likely end up removed
 function debounce(func, wait) {
   let timeout;
@@ -30,7 +32,6 @@ window.addEventListener("DOMContentLoaded", () => {
     openmodel(model);
   }
   const cellSizeSlider = document.getElementById('cell-size-slider');
-
 
   let isResizing = false;
   let startX;
@@ -81,17 +82,22 @@ window.addEventListener("DOMContentLoaded", () => {
   let backgroundColor = '#f0f0f0';
 
   function toggleCellState(event) {
-    console.log('Canvas clicked');
-  
     const x = Math.floor(event.offsetX / cellSize);
     const y = Math.floor(event.offsetY / cellSize);
   
-    console.log(`Toggling cell at x: ${x}, y: ${y}`);
-    console.log(`Before toggle: grid[${y}][${x}] = ${grid[y][x]}`);
+    if (selectedShape) {
+      for (let i = 0; i < selectedShape.length; i++) {
+        for (let j = 0; j < selectedShape[i].length; j++) {
+          if (y + i < grid.length && x + j < grid[y + i].length) {
+            grid[y + i][x + j] = selectedShape[i][j];
+          }
+        }
+      }
+      selectedShape = null;
+    } else {
+      grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+    }
   
-    grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-  
-    console.log(`After toggle: grid[${y}][${x}] = ${grid[y][x]}`);
     drawGrid(grid);
   }
   
@@ -109,6 +115,20 @@ window.addEventListener("DOMContentLoaded", () => {
         if (grid[y][x] === 1) {
           gameCtx.fillStyle = cellColor;
           gameCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  
+    // Draw the selected shape's outline
+    if (selectedShape) {
+      gameCtx.strokeStyle = 'red';
+      const shapeX = Math.floor(cursorPosition.x / cellSize) * cellSize;
+      const shapeY = Math.floor(cursorPosition.y / cellSize) * cellSize;
+      for (let i = 0; i < selectedShape.length; i++) {
+        for (let j = 0; j < selectedShape[i].length; j++) {
+          if (selectedShape[i][j] === 1) {
+            gameCtx.strokeRect(shapeX + j * cellSize, shapeY + i * cellSize, cellSize, cellSize);
+          }
         }
       }
     }
@@ -244,6 +264,10 @@ window.addEventListener("DOMContentLoaded", () => {
   closeModalBtn.addEventListener('click', closeModal);
   cellSizeSlider.addEventListener('input', updateCellSize);
   gameCanvas.addEventListener("click", toggleCellState);
+  gameCanvas.addEventListener('mousemove', (event) => {
+    cursorPosition = { x: event.offsetX, y: event.offsetY };
+    drawGrid(grid);
+  });
 
 
   let gridInitialized = false;
@@ -282,7 +306,38 @@ window.addEventListener("DOMContentLoaded", () => {
     cellSize = adjustedCellSize;
     drawGrid(grid);
   }
+
+  // shape definitions
+  const shapes = {
+    shape1: [
+      [1, 1],
+      [1, 1]
+    ],
+    shape2: [
+      [1, 1, 1],
+      [0, 1, 0],
+      [1, 1, 1]
+    ]
+    // Add more shapes later
+  };
   
+  // shape declarations and listeners
+  const shapesBtn = document.getElementById('shapes-btn');
+  const shapeBtns = document.getElementsByClassName('shape-btn');
+  let selectedShape = null;
+
+  shapesBtn.addEventListener('click', () => {
+    const shapesMenu = document.getElementById('shapes-menu');
+    shapesMenu.style.display = shapesMenu.style.display === 'none' ? 'block' : 'none';
+  });
+
+  for (const shapeBtn of shapeBtns) {
+    shapeBtn.addEventListener('click', (event) => {
+      const shape = event.target.closest('button').dataset.shape;
+      selectedShape = shapes[shape];
+    });
+  }
+
   
   // button functionality
   function toggleGame() {
