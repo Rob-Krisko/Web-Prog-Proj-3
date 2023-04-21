@@ -23,28 +23,6 @@ body {
   user-select: none;
 }
 
-
-#menu {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: white;
-  border: 1px solid #333;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-
-#menu-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-}
-
-
 #controls {
   display: flex;
   flex-direction: column;
@@ -162,17 +140,28 @@ a:hover {
   pointer-events: all;
 }
 
-#shapes-menu {
+footer#shapes-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  background-color: #f1f1f1;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.shapes-container {
+  display: flex;
+  flex-wrap: nowrap;
   gap: 10px;
   align-items: center;
   justify-content: center;
-  max-width: 220px; /* Width of two 100px images + 20px gap */
-  max-height: 80vh; /* You can adjust the height based on your preference */
-  overflow-y: auto;
+  overflow-x: auto; /* Enable horizontal scroll when content overflows */
   padding: 5px;
 }
+
 
 .shape-btn {
   background: none;
