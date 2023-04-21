@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conway's Game of Life</title>
   <link rel="stylesheet" href="gol.css">
-  <script src="gol.js" defer></script>
+  <link rel="stylesheet" href="menu.css">
 </head>
 <body>
-  <!-- this is the code for the pop up-->
   <div class="modal" id="modal">
     <div class="modal-head">
       <div class="title">Welcome to Conway's Game of Life!</div>
@@ -37,49 +36,55 @@
     </div>
   </div>
   <div id="overlay"></div>
-  <!-- this is the code for the pop up-->
   <div id="game-container">
-      <canvas id="game-of-life-canvas"></canvas>   
+    <canvas id="game-of-life-canvas"></canvas>
     <div id="menu">
-      <div id="controls">
-        <button id="start-btn">Start</button>
-        <button id="reset-btn">Reset</button>
-        <button id="next-btn">Next generation</button>
-        <button id="next23-btn">Next 23 generations</button>     
-        <label for="populate-percentage-input">Population Percentage:</label>
-        <input type="range" id="populate-percentage-input" min="0" max="100" step="1" value="30">
-        <label for="speed-input">Speed:</label>
-        <input type="range" id="speed-input" min="0" max="1000" step="10" value="100">
-        <label for="resize-slider">Resize cells:</label>
-        <input type="range" min="5" max="50" value="15" class="slider" id="cell-size-slider">
-        <label for="cell-color-picker">Cell Color:</label>
-        <input type="color" id="cell-color-picker">
-        <label for="grid-color-picker">Grid Color:</label>
-        <input type="color" id="grid-color-picker">
-        <label for="background-color-picker">Background Color:</label>
-        <input type="color" id="background-color-picker">
-        <button id="shapes-btn">Shapes</button>
-        <div id="shapes-menu" style="display:none">
-          <button class="shape-btn" data-shape="shape1"><img src="shape1.png" alt="Block" /></button>
-          <button class="shape-btn" data-shape="shape2"><img src="shape2.png" alt="Beehive" /></button>
-          <button class="shape-btn" data-shape="shape3"><img src="shape3.png" alt="Pulsar" /></button>
-          <button class="shape-btn" data-shape="shape4"><img src="shape4.png" alt="101" /></button>
-          <button class="shape-btn" data-shape="shape5"><img src="shape5.png" alt="Glider" /></button>
-          <button class="shape-btn" data-shape="shape6"><img src="shape6.png" alt="LWSS" /></button>
-          <button class="shape-btn" data-shape="shape7"><img src="shape7.png" alt="Beacon" /></button>
-          <button class="shape-btn" data-shape="shape8"><img src="shape8.png" alt="Toad" /></button>
-          <button class="shape-btn" data-shape="shape9"><img src="shape9.png" alt="Blinker" /></button>
-          <button class="shape-btn" data-shape="shape10"><img src="shape10.png" alt="Gosper Gun" /></button>
-          <button class="shape-btn" data-shape="shape11"><img src="shape11.png" alt="Penta-Decathlon" /></button>
-          <button class="shape-btn" data-shape="shape12"><img src="shape12.png" alt="Loaf" /></button>
-          <button class="shape-btn" data-shape="shape13"><img src="shape13.png" alt="Tub" /></button>
-          <button class="shape-btn" data-shape="shape14"><img src="shape14.png" alt="Boat" /></button>
-          <button class="shape-btn" data-shape="shape15"><img src="shape15.png" alt="Babbling Brook" /></button>
+      <div id="menu-toggle">
+        <button class="menu-btn" id="start-btn">Start</button>
+        <button class="menu-btn" id="reset-btn">Reset</button>
+        <button class="menu-btn" id="next-btn">Next Generation</button>
+        <button class="menu-btn" id="next-23-gen-btn">Next 23 Generations</button>
+        <button class="menu-btn nested-menu-toggle" id="nested-menu-1-btn">Settings</button>
+        <div class="nested-menu" id="nested-menu-1">
+          <label class="menu-label" for="populate-percentage-input">Population Percentage:</label>
+          <input class="menu-input" type="range" id="populate-percentage-input" min="0" max="100" step="1" value="30">
+          <label class="menu-label" for="speed-input">Speed:</label>
+          <input class="menu-input" type="range" id="speed-input" min="0" max="1000" step="10" value="100">
+          <label class="menu-label" for="cell-size-slider">Resize cells:</label>
+          <input class="menu-input" type="range" min="5" max="50" value="15" class="slider" id="cell-size-slider">
         </div>
-        <button id="open-popup" data-modal-target="#modal">Open Popup</button>
+        <button class="menu-btn nested-menu-toggle" id="nested-menu-2-btn">Color</button>
+        <div class="nested-menu" id="nested-menu-2">
+          <label class="menu-label" for="cell-color-picker">Cell Color:</label>
+          <input class="menu-input" type="color" id="cell-color-picker">
+          <label class="menu-label" for="grid-color-picker">Grid Color:</label>
+          <input class="menu-input" type="color" id="grid-color-picker">
+          <label class="menu-label" for="background-color-picker">Background Color:</label>
+          <input class="menu-input" type="color" id="background-color-picker">
+        </div>
+        <button class="menu-btn" id="open-popup" data-modal-target="#modal">Open Popup</button>
       </div>
     </div>
-    <button id="menu-toggle">Menu</button>
   </div>
+  <footer>
+    <div class="shapes-container">
+      <button class="shape-btn" data-shape="shape1"><img src="shape1.png" alt="Block" /></button>
+      <button class="shape-btn" data-shape="shape2"><img src="shape2.png" alt="Beehive" /></button>
+      <button class="shape-btn" data-shape="shape3"><img src="shape3.png" alt="Pulsar" /></button>
+      <button class="shape-btn" data-shape="shape4"><img src="shape4.png" alt="101" /></button>
+      <button class="shape-btn" data-shape="shape5"><img src="shape5.png" alt="Glider" /></button>
+      <button class="shape-btn" data-shape="shape6"><img src="shape6.png" alt="LWSS" /></button>
+      <button class="shape-btn" data-shape="shape7"><img src="shape7.png" alt="Beacon" /></button>
+      <button class="shape-btn" data-shape="shape8"><img src="shape8.png" alt="Toad" /></button>
+      <button class="shape-btn" data-shape="shape9"><img src="shape9.png" alt="Blinker" /></button>
+      <button class="shape-btn" data-shape="shape10"><img src="shape10.png" alt="Gosper Gun" /></button>
+      <button class="shape-btn" data-shape="shape11"><img src="shape11.png" alt="Penta-Decathlon" /></button>
+      <button class="shape-btn" data-shape="shape12"><img src="shape12.png" alt="Loaf" /></button>
+      <button class="shape-btn" data-shape="shape13"><img src="shape13.png" alt="Tub" /></button>
+      <button class="shape-btn" data-shape="shape14"><img src="shape14.png" alt="Boat" /></button>
+      <button class="shape-btn" data-shape="shape15"><img src="shape15.png" alt="Babbling Brook" /></button>
+    </div>
+  </footer>
+  <script src="gol.js" defer></script>
 </body>
 </html>
