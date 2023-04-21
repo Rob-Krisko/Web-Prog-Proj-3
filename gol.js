@@ -3,6 +3,7 @@ const closeButton = document.querySelectorAll("[data-close-button]");
 const overlay = document.getElementById("overlay");
 const minCellSize = 5;
 const maxCellSize = 50;
+const shapesFooter = document.getElementById("shapes-footer");
 let cursorPosition = { x: 0, y: 0 };
 
 // part of troubleshooting, will likely end up removed
@@ -19,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const startBtn = document.getElementById('start-btn');
   const resetBtn = document.getElementById('reset-btn');
   const nextBtn = document.getElementById('next-btn');
-  const next23GenBtn = document.getElementById('next23-btn');
+  const next23GenBtn = document.getElementById('next-23-gen-btn');
   const speedInput = document.getElementById('speed-input');
   const populatePercentageInput = document.getElementById('populate-percentage-input');
   const cellColorPicker = document.getElementById('cell-color-picker');
@@ -29,8 +30,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.querySelector('[data-close-button]');
   if (buttonOpen) {
     const model = document.querySelector(buttonOpen.dataset.modalTarget);
-    openmodel(model);
+    openModal(model);
   }
+
   const cellSizeSlider = document.getElementById('cell-size-slider');
 
   let isResizing = false;
@@ -100,7 +102,6 @@ window.addEventListener("DOMContentLoaded", () => {
   
     drawGrid(grid);
   }
-  
 
   function drawGrid(grid) {
     const gridWidth = grid[0].length;
@@ -248,10 +249,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Add event listeners
   startBtn.addEventListener('click', () => {
-    console.log('Start button clicked');
     toggleGame();
   });
-
   resetBtn.addEventListener('click', resetGame);
   nextBtn.addEventListener('click', advanceGeneration);
   next23GenBtn.addEventListener('click', next23Generations);
@@ -260,8 +259,14 @@ window.addEventListener("DOMContentLoaded", () => {
   cellColorPicker.addEventListener('input', updateCellColor);
   gridColorPicker.addEventListener('input', updateGridColor);
   backgroundColorPicker.addEventListener('input', updateBackgroundColor);
-  openPopupBtn.addEventListener('click', openModal);
-  closeModalBtn.addEventListener('click', closeModal);
+  openPopupBtn.addEventListener('click', () => {
+    const model = document.querySelector(openPopupBtn.dataset.modalTarget);
+    openModal(model);
+  });
+  closeModalBtn.addEventListener('click', () => {
+    const model = closeModalBtn.closest(".model");
+    closeModal(model);
+  });
   cellSizeSlider.addEventListener('input', updateCellSize);
   gameCanvas.addEventListener("click", toggleCellState);
   gameCanvas.addEventListener('mousemove', (event) => {
@@ -288,7 +293,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const padding = 15;
     const newWidth = Math.floor((window.innerWidth - padding * 2) / cellSize) * cellSize;
     const newHeight = Math.floor((window.innerHeight - padding * 2) / cellSize) * cellSize;
-  
     gameCanvas.width = newWidth;
     gameCanvas.height = newHeight;
     grid = resizeGrid(grid, newWidth / cellSize, newHeight / cellSize, cellSize);
@@ -426,14 +430,8 @@ window.addEventListener("DOMContentLoaded", () => {
   };
   
   // shape declarations and listeners
-  const shapesBtn = document.getElementById('shapes-btn');
-  const shapeBtns = document.getElementsByClassName('shape-btn');
+  const shapeBtns = document.querySelectorAll('.footer .shape-btn'); // Update the query selector
   let selectedShape = null;
-
-  shapesBtn.addEventListener('click', () => {
-    const shapesMenu = document.getElementById('shapes-menu');
-    shapesMenu.style.display = shapesMenu.style.display === 'none' ? 'block' : 'none';
-  });
 
   for (const shapeBtn of shapeBtns) {
     shapeBtn.addEventListener('click', (event) => {
@@ -442,7 +440,6 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  
   // button functionality
   function toggleGame() {
     if (intervalId === null) {
@@ -517,6 +514,81 @@ window.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     document.getElementById('modal').classList.remove('active');
   }
+
+  const menuToggle = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+  const nestedMenuButtons = document.querySelectorAll(".nested-menu-toggle");
+
+  menuToggle.addEventListener("click", function () {
+    menu.classList.toggle("menu-expanded");
+  });
+
+  nestedMenuButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      console.log('Button Clicked', button);
+      event.stopPropagation(); // Add this line to prevent event bubbling
+      const nestedMenuId = button.id.replace("-btn", "");
+      const nestedMenu = document.getElementById(nestedMenuId);
+
+      if (nestedMenu) {
+        nestedMenu.classList.toggle("nested-menu-active");
+      }
+    });
+  });
   
+  
+  
+  // Draggable menu functionality
+  let isDragging = false;
+  let offsetX, offsetY;
+  
+  menu.addEventListener("mousedown", (event) => {
+    if (menu.classList.contains("menu-expanded")) return;
+    isDragging = true;
+    offsetX = event.clientX - menu.getBoundingClientRect().left;
+    offsetY = event.clientY - menu.getBoundingClientRect().top;
+  });
+  
+  document.addEventListener("mousemove", (event) => {
+    if (!isDragging) return;
+    event.preventDefault();
+    menu.style.left = event.clientX - offsetX + "px";
+    menu.style.top = event.clientY - offsetY + "px";
+    menu.style.right = "auto"; // Reset the 'right' position when dragging
+  });
+  
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+  
+    // Check if the menu goes off-screen and adjust its position if necessary
+    const menuRect = menu.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+  
+    if (menu.classList.contains("menu-expanded")) {
+      if (menuRect.right > windowWidth) {
+        menu.style.left = windowWidth - menuRect.width - 10 + "px";
+        menu.style.right = "auto";
+      }
+  
+      if (menuRect.top < 0) {
+        menu.style.top = "10px";
+      }
+  
+      if (menuRect.bottom > windowHeight) {
+        menu.style.top = windowHeight - menuRect.height - 10 + "px";
+      }
+    }
+  });
+  
+  // Add this block of code to detect clicks outside the menu
+  document.addEventListener("click", function (event) {
+    if (!menu.contains(event.target) && event.target !== menuToggle) {
+      menu.classList.remove("menu-expanded");
+    }
+  });
+  
+  
+
   startGameOfLife();
 });
