@@ -162,4 +162,28 @@ a:hover {
   pointer-events: all;
 }
 
+#shapes-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  max-width: 220px; /* Width of two 100px images + 20px gap */
+  max-height: 80vh; /* You can adjust the height based on your preference */
+  overflow-y: auto;
+  padding: 5px;
+}
 
+.shape-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.shape-btn img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
