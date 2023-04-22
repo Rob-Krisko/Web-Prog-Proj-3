@@ -141,7 +141,7 @@ a:hover {
 }
 
 footer#shapes-footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -150,7 +150,9 @@ footer#shapes-footer {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10; /* Add this line to ensure the footer is above the canvas */
 }
+
 
 .shapes-container {
   display: flex;
