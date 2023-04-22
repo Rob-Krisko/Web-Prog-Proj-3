@@ -5,6 +5,13 @@ const minCellSize = 5;
 const maxCellSize = 50;
 const shapesFooter = document.getElementById("shapes-footer");
 let cursorPosition = { x: 0, y: 0 };
+seconds = 0;
+minutes = 0;
+generation_count = 0;
+timer = null;
+//score is number of alive cells
+score = 0;
+
 
 // part of troubleshooting, will likely end up removed
 function debounce(func, wait) {
@@ -101,6 +108,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   
     drawGrid(grid);
+    updateScore();
   }
 
   function drawGrid(grid) {
@@ -194,7 +202,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-
+    generation_count += 1;
+    document.getElementById('generation').innerHTML= generation_count.toString();
+    updateScore();
     return newGrid;
   }
 
@@ -286,6 +296,7 @@ window.addEventListener("DOMContentLoaded", () => {
     resizeCanvas();
     populateGridRandomly(grid, 30);
     drawGrid(grid);
+    updateScore();
   }
   
   
@@ -297,6 +308,7 @@ window.addEventListener("DOMContentLoaded", () => {
     gameCanvas.height = newHeight;
     grid = resizeGrid(grid, newWidth / cellSize, newHeight / cellSize, cellSize);
     drawGrid(grid); // Pass grid parameter here
+    updateScore();
   }
   
   
@@ -309,6 +321,7 @@ window.addEventListener("DOMContentLoaded", () => {
     grid = resizeGrid(grid, newWidth, newHeight, adjustedCellSize);
     cellSize = adjustedCellSize;
     drawGrid(grid);
+    updateScore();
   }
 
   // shape definitions
@@ -448,8 +461,10 @@ window.addEventListener("DOMContentLoaded", () => {
         drawGrid(grid);
       }, intervalSpeed);
       startBtn.textContent = 'Stop';
+      timer = setInterval(continueTimer,1000);
     } else {
       clearInterval(intervalId);
+      clearInterval(timer);
       intervalId = null;
       startBtn.textContent = 'Start';
     }
@@ -461,6 +476,10 @@ window.addEventListener("DOMContentLoaded", () => {
     startBtn.textContent = 'Start';
     populateGridRandomly(grid, 30);
     drawGrid(grid);
+    generation_count = 0;
+    document.getElementById("generation").innerHTML=generation_count.toString();
+    resetTimer();
+    updateScore();
   }
 
   function advanceGeneration() {
@@ -490,6 +509,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const percentage = event.target.value;
     populateGridRandomly(grid, percentage);
     drawGrid(grid);
+    updateScore();
   }
 
   function updateCellColor(event) {
@@ -580,6 +600,60 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  //function to resume timer
+  function continueTimer(){
+    seconds ++;
+    if (seconds >= 60){
+      seconds = 0;
+      minutes ++;
+    }
+    if (minutes >= 60){
+      minutes = 0;
+    }
+    if (seconds <10){
+      seconds_string = "0" + seconds.toString();
+    } else{
+      seconds_string = seconds.toString();
+    }
+    if (minutes <10){
+      minutes_string = "0" + minutes.toString();
+    } else {
+      mimutes_string = minutes.toString();
+    }
+    time_string = minutes_string + ":" + seconds_string;
+    document.getElementById('time').innerHTML=time_string;
+  }
+
+  //function to stop the timer and reset it to 00:00
+  function resetTimer(){
+    seconds = 0;
+    minutes = 0;
+    time_string = "00:00";
+    document.getElementById('time').innerHTML=time_string;
+    clearInterval(timer);
+  }
+
+  //function to count number of alive cells
+  function updateScore(){
+    alive_count = 0;
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+
+
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        const isAlive = grid[y][x] === 1;
+
+        if (isAlive == true) {
+          alive_count ++;
+        } 
+      }
+    }
+
+    document.getElementById('score').innerHTML=alive_count.toString();
+    
+  }
   
   // Add this block of code to detect clicks outside the menu
   document.addEventListener("click", function (event) {

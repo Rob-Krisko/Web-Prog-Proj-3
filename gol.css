@@ -176,3 +176,12 @@ footer#shapes-footer {
   height: 100px;
   object-fit: contain;
 }
+
+h1{
+  display: inline;
+}
+
+header #scores{
+  align-content: center;
+  justify-content: center;
+}
