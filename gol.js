@@ -289,15 +289,30 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   
+  const gameOfLifeCanvas = document.getElementById("game-of-life-canvas");
+
   function resizeCanvas() {
     const padding = 15;
+    const shapesFooterHeight = shapesFooter.clientHeight;
     const newWidth = Math.floor((window.innerWidth - padding * 2) / cellSize) * cellSize;
-    const newHeight = Math.floor((window.innerHeight - padding * 2) / cellSize) * cellSize;
-    gameCanvas.width = newWidth;
-    gameCanvas.height = newHeight;
+    const newHeight = Math.floor((window.innerHeight - shapesFooterHeight - padding * 2) / cellSize) * cellSize;
+  
+    gameOfLifeCanvas.width = newWidth;
+    gameOfLifeCanvas.height = newHeight;
+    gameOfLifeCanvas.style.top = padding + 'px'; // Add this line to set the top property of the canvas
+  
     grid = resizeGrid(grid, newWidth / cellSize, newHeight / cellSize, cellSize);
-    drawGrid(grid); // Pass grid parameter here
+    drawGrid(grid);
   }
+  
+  
+  
+  const shapesFooter = document.getElementById("shapes-footer");
+  
+  // Call resizeCanvas on window load and window resize
+  window.addEventListener('load', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas);
+  
   
   
   function updateCellSize(event) {
@@ -430,14 +445,16 @@ window.addEventListener("DOMContentLoaded", () => {
   };
   
   // shape declarations and listeners
-  const shapeBtns = document.querySelectorAll('.footer .shape-btn'); // Update the query selector
+  const shapeBtns = document.querySelectorAll('#shapes-footer .shape-btn');
   let selectedShape = null;
 
   for (const shapeBtn of shapeBtns) {
     shapeBtn.addEventListener('click', (event) => {
       const shape = event.target.closest('button').dataset.shape;
       selectedShape = shapes[shape];
+      drawGrid(grid); // Add this line to redraw the grid with the shape outline
     });
+    
   }
 
   // button functionality
