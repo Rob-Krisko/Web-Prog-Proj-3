@@ -493,10 +493,20 @@ window.addEventListener("DOMContentLoaded", () => {
     populateGridRandomly(grid, 30);
     drawGrid(grid);
     generation_count = 0;
-    document.getElementById("generation").innerHTML=generation_count.toString();
+    document.getElementById("generation").innerHTML = generation_count.toString();
     resetTimer();
     updateScore();
+  
+    // Get the max population from the score element
+    const maxPopulation = parseInt(document.querySelector('#maxPopulation').textContent);
+  
+    // Calculate the elapsed time in seconds
+    const elapsedTime = minutes * 60 + seconds;
+  
+    // Send the max population and elapsed time to the server
+    sendGameDataToServer(maxPopulation, elapsedTime);
   }
+  
 
   function advanceGeneration() {
     grid = nextGeneration(grid);
@@ -571,8 +581,6 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-  
-  
   
   // Draggable menu functionality
   let isDragging = false;
@@ -651,25 +659,79 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   //function to count number of alive cells
-  function updateScore(){
+  function updateScore() {
     alive_count = 0;
     const gridWidth = grid[0].length;
     const gridHeight = grid.length;
-
-
+  
     for (let y = 0; y < gridHeight; y++) {
       for (let x = 0; x < gridWidth; x++) {
         const isAlive = grid[y][x] === 1;
-
+  
         if (isAlive == true) {
-          alive_count ++;
-        } 
+          alive_count++;
+        }
       }
     }
-
-    document.getElementById('score').innerHTML=alive_count.toString();
+  
+    document.getElementById('score').innerHTML = alive_count.toString();
     localStorage.setItem('score', alive_count);
+  
+    // Call updateMaxPopulation function with the current alive_count
+    updateMaxPopulation(alive_count);
   }
+  
+
+  // Retrieve the username from localStorage and call updateUserDisplay
+  const retrievedUsername = localStorage.getItem('lastLoggedInUser');
+  if (retrievedUsername) {
+    updateUserDisplay(retrievedUsername);
+  } else {
+    updateUserDisplay(null); // Call with null if no user is logged in
+  }
+
+  // Function to update the user display
+  function updateUserDisplay(username) {
+    const usernameElement = document.querySelector('#Username');
+    if (username) {
+      usernameElement.textContent = `Welcome ${username}`;
+    } else {
+      usernameElement.textContent = 'User Not Logged In';
+    }
+  }
+  
+
+// Function to update the maximum population
+function updateMaxPopulation(currentPopulation) {
+  const maxPopulationElement = document.querySelector('#maxPopulation');
+  let maxPopulation = parseInt(maxPopulationElement.textContent);
+
+  if (currentPopulation > maxPopulation) {
+    maxPopulationElement.textContent = currentPopulation;
+    // Get the elapsed time from the timer
+    const elapsedTime = minutes * 60 + seconds;
+    // Send the new max population and elapsed time to the server
+    sendGameDataToServer(maxPopulation, elapsedTime);
+  }
+}
+
+
+
+function sendGameDataToServer(maxPopulation, elapsedTime) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "score.php", true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  xhr.onreadystatechange = function () {
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+      console.log("Game data sent to server.");
+    }
+  };
+
+  xhr.send(`maxPopulation=${maxPopulation}&elapsedTime=${elapsedTime}`);
+}
+
+
   
   // Add this block of code to detect clicks outside the menu
   document.addEventListener("click", function (event) {
@@ -678,7 +740,5 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
   
-  
-
   startGameOfLife();
 });
