@@ -470,6 +470,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   // button functionality
+  let startTimer = false;
+
   function toggleGame() {
     if (intervalId === null) {
       intervalId = setInterval(() => {
@@ -477,7 +479,11 @@ window.addEventListener("DOMContentLoaded", () => {
         drawGrid(grid);
       }, intervalSpeed);
       startBtn.textContent = 'Stop';
-      timer = setInterval(continueTimer,1000);
+      timer = setInterval(continueTimer, 1000);
+      startTimer = false; // Reset the startTimer flag
+      setTimeout(() => {
+        startTimer = true; // Change the startTimer flag to true after 1 second
+      }, 1000);
     } else {
       clearInterval(intervalId);
       clearInterval(timer);
@@ -485,8 +491,17 @@ window.addEventListener("DOMContentLoaded", () => {
       startBtn.textContent = 'Start';
     }
   }
+  
 
   function resetGame() {
+    // Get the max population from the score element
+    const maxPopulation = parseInt(document.querySelector('#maxPopulation').textContent);
+  
+    // Calculate the elapsed time in seconds
+    const elapsedTime = minutes * 60 + seconds;
+      
+    // Send the max population and elapsed time to the server
+    sendGameDataToServer(maxPopulation, elapsedTime);
     clearInterval(intervalId);
     intervalId = null;
     startBtn.textContent = 'Start';
@@ -497,14 +512,7 @@ window.addEventListener("DOMContentLoaded", () => {
     resetTimer();
     updateScore();
   
-    // Get the max population from the score element
-    const maxPopulation = parseInt(document.querySelector('#maxPopulation').textContent);
-  
-    // Calculate the elapsed time in seconds
-    const elapsedTime = minutes * 60 + seconds;
-  
-    // Send the max population and elapsed time to the server
-    sendGameDataToServer(maxPopulation, elapsedTime);
+
   }
   
 
@@ -625,6 +633,13 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+    // Add this block of code to detect clicks outside the menu
+    document.addEventListener("click", function (event) {
+      if (!menu.contains(event.target) && event.target !== menuToggle) {
+        menu.classList.remove("menu-expanded");
+      }
+    });
+
   //function to resume timer
   function continueTimer(){
     seconds ++;
@@ -677,29 +692,33 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById('score').innerHTML = alive_count.toString();
     localStorage.setItem('score', alive_count);
   
-    // Call updateMaxPopulation function with the current alive_count
-    updateMaxPopulation(alive_count);
-  }
-  
-
-  // Retrieve the username from localStorage and call updateUserDisplay
-  const retrievedUsername = localStorage.getItem('lastLoggedInUser');
-  if (retrievedUsername) {
-    updateUserDisplay(retrievedUsername);
-  } else {
-    updateUserDisplay(null); // Call with null if no user is logged in
-  }
-
-  // Function to update the user display
-  function updateUserDisplay(username) {
-    const usernameElement = document.querySelector('#Username');
-    if (username) {
-      usernameElement.textContent = `Welcome ${username}`;
-    } else {
-      usernameElement.textContent = 'User Not Logged In';
+    // Call updateMaxPopulation function with the current alive_count only if startTimer is true
+    if (startTimer) {
+      updateMaxPopulation(alive_count);
     }
   }
   
+  
+
+  fetch("get_username.php")
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      updateUserDisplay(data.username);
+    } else {
+      updateUserDisplay(null); // Call with null if no user is logged in
+    }
+  });
+
+// Function to update the user display
+function updateUserDisplay(username) {
+  const userDisplay = document.querySelector('#Username');
+  if (username) {
+    userDisplay.textContent = username;
+  } else {
+    userDisplay.textContent = "";
+  }
+}
 
 // Function to update the maximum population
 function updateMaxPopulation(currentPopulation) {
@@ -715,30 +734,30 @@ function updateMaxPopulation(currentPopulation) {
   }
 }
 
-
-
 function sendGameDataToServer(maxPopulation, elapsedTime) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", "score.php", true);
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  fetch("get_username.php")
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const loggedInUsername = data.username;
+        console.log('loggedInUsername:', loggedInUsername);
 
-  xhr.onreadystatechange = function () {
-    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-      console.log("Game data sent to server.");
-    }
-  };
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "score.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-  xhr.send(`maxPopulation=${maxPopulation}&elapsedTime=${elapsedTime}`);
+        xhr.onreadystatechange = function () {
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log("Game data sent to server.");
+          }
+        };
+
+        xhr.send(`username=${loggedInUsername}&max_population=${maxPopulation}&elapsed_time=${elapsedTime}`);
+      } else {
+        console.log("User not logged in. Game data not sent.");
+      }
+    });
 }
 
-
-  
-  // Add this block of code to detect clicks outside the menu
-  document.addEventListener("click", function (event) {
-    if (!menu.contains(event.target) && event.target !== menuToggle) {
-      menu.classList.remove("menu-expanded");
-    }
-  });
-  
   startGameOfLife();
 });
