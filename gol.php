@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +43,7 @@
   <div id="overlay"></div>
   <header>
     <div id="scores">
-      <span id="Username"></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
+    <span id="Username"><?php echo isset($_SESSION['user_id']) ? $_SESSION['username'] : ''; ?></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
     </div>
   </header>
   
