@@ -1,4 +1,3 @@
-
 //Login
 const login = document.querySelector(".login");
 const loginOverlay = document.querySelector(".loginOverlay");
@@ -12,26 +11,21 @@ const openRegistrationBtn = document.querySelector(".btn-register");
 const closeRegistrationBtn = document.querySelector(".register-close");
 const registrationForm = document.querySelector(".registration-form");
 
-
-// get the user's score from localStorage
-let score = localStorage.getItem('score');
-
 // Added this function to save user data to localStorage
-function saveUserData(username, password, score) {
+function saveUserData(username, password) {
   const userData = {
-  username: username,
-  password: password,
-  score: score,
+    username: username,
+    password: password,
   }
   localStorage.setItem(username, JSON.stringify(userData));
 }
 
-// Added this function to retrieve user data from localStorage
+// Updated this function to retrieve user data from localStorage
 function getUserData(username) {
   const userData = localStorage.getItem(username);
   if (userData) {
-    const {password, userInfo: {score }} = JSON.parse(userData);
-    return {password, score};
+    const { password } = JSON.parse(userData);
+    return { password };
   }
   return null;
 }
@@ -67,7 +61,9 @@ loginForm.addEventListener('submit', function (event) {
     console.log('Login successful');
     console.log(username);
     console.log(password);
+    localStorage.setItem('lastLoggedInUser', username); // Save the last logged-in user
     closeLogin();
+    updateUserDisplay(username);
   } else {
     // authentication failed
     const errorMessages = document.querySelectorAll('.error-message');
@@ -115,22 +111,34 @@ registrationOverlay.addEventListener("click", closeRegister);
 
 // close modal when the Esc key is pressed
 document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" && !registrationModal.classList.contains("register-hidden")) {
-    closeRegister();
+    if (e.key === "Escape" && !registrationModal.classList.contains("register-hidden")) {
+      closeRegister();
+    }
+  });
+  
+  // open modal function
+  const openRegister = function () {
+    registrationModal.classList.remove("register-hidden");
+    registrationOverlay.classList.remove("register-hidden");
+  };
+  // open modal event
+  openRegistrationBtn.addEventListener("click", openRegister);
+  
+  // Function to update the user display
+  function updateUserDisplay(username) {
+    const usernameElement = document.querySelector('#Username');
+    if (username) {
+      usernameElement.textContent = `Welcome ${username}`;
+    } else {
+      usernameElement.textContent = 'User Not Logged In';
+    }
   }
-});
-
-// open modal function
-const openRegister = function () {
-  registrationModal.classList.remove("register-hidden");
-  registrationOverlay.classList.remove("register-hidden");
-};
-// open modal event
-openRegistrationBtn.addEventListener("click", openRegister);
-//--------------------------------------------------Score--------------------
-const scoreElement = document.querySelector('.score');
-const storedUserData = getUserData(username);
-if (storedUserData) {
-  const { score } = storedUserData;
-  scoreElement.textContent = `Score: ${score}`;
-}
+  
+  // Get the last logged-in user's username and update the user display
+  const lastLoggedInUser = localStorage.getItem('lastLoggedInUser');
+  if (lastLoggedInUser) {
+    updateUserDisplay(lastLoggedInUser);
+  } else {
+    updateUserDisplay(null);
+  }
+  
