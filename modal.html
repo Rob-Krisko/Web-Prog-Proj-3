@@ -1,72 +1,83 @@
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <title>Modal Login Form</title>
-        <link rel="stylesheet" href="modal.css">
-    </head>
-    
-    <body>
-      <h5>Welcome to Conway's Game of Life!</h5><br><br><br>
+  <head>
+    <meta charset="utf-8" />
+    <title>Modal Login Form</title>
+    <link rel="stylesheet" href="modal.css" />
+  </head>
 
-      <section>
-        <h6 id="Username">Username</h6>
-        <h6>Score:</h6> <h6 id="score">00</h6>
-        <section class="login login-hidden">
-            <div class="flex">
-              <button class="login-close">x</button>
-            </div>
-            <div>
-              <h3>Login</h3>
-            </div>
-            <form method="post" class="login-form">
+  <body>
+    <h5>Welcome to Conway's Game of Life!</h5>
+    <br /><br /><br />
 
-                <!--Username-->
-                <label for="username" class="label">Username:</label>
-                <input type="username" id="username" placeholder="Username"/>
-                <span class="error-message"></span><br><br>
+    <section>
+      <h6 id="Username">User Not Logged In</h6>
+      <section class="login login-hidden">
+        <div class="flex">
+          <button class="login-close">x</button>
+        </div>
+        <div>
+          <h3>Login</h3>
+        </div>
+        <form action="login.php" method="post" class="login-form">
+          <!--Username-->
+          <label for="username" class="label">Username:</label>
+          <input type="text" name="username" id="username" placeholder="Username" />
+          <span class="error-message"></span>
+          <br /><br />
 
-                <!--Password-->
-                <label for="lpassword" class="label">Password:</label>
-                <input type="password" id="lpassword" placeholder="Password"/>
-                <span class="error-message"></span><br><br>
+          <!--Password-->
+          <label for="lpassword" class="label">Password:</label>
+          <input type="password" name="lpassword" id="lpassword" placeholder="Password" />
+          <span class="error-message"></span>
+          <br /><br />
 
-                <input type="submit" value="login"/>
-            </form>
-        </section>
-
-        <section class="registration register-hidden">
-          <div class="flex">
-            <button class="register-close">x</button>
-          </div>
-          <div>
-            <h3>Register</h3>
-          </div>
-          <form method="post" class="registration-form">
-
-              <!--Username-->
-              <label for="name" class="label">Username:</label>
-              <input type="name" id="name" placeholder="Username" />
-              <span class="error-message"></span><br><br>
-
-              <!--Password-->
-              <label for="pass" class="label">Password:</label>
-              <input type="pass" id="pass" placeholder="Password"/>
-              <span class="error-message"></span><br><br>
-
-              <!--Re-Enter Password-->
-              <label for="passtwo" class="label">Re-enter Password:</label>
-              <input type="passtwo" id="passtwo" placeholder="Password Check"/>
-              <span class="error-message"></span><br><br>
-
-              <input type="submit" value="register"/>
-          </form>
+          <input type="submit" value="login" />
+        </form>
       </section>
-        <div class="loginOverlay login-hidden"></div>
-        <button class="btn login-open">Login</button>
-        <div class="register-overlay register-hidden"></div>
-        <button class="btn btn-register">Register</button>
-        <script type = "text/javascript" src="modal.js"></script>
-        <br>
-        <br>
-        <a href ="gol.html">Back to game page</a>
-    </body>
+
+      <section class="registration register-hidden">
+        <div class="flex">
+          <button class="register-close">x</button>
+        </div>
+        <div>
+          <h3>Register</h3>
+        </div>
+        <form action="register.php" method="post" class="registration-form">
+          <!--Username-->
+          <label for="name" class="label">Username:</label>
+          <input type="text" name="name" id="name" placeholder="Username" />
+          <span class="error-message"></span>
+          <br /><br />
+
+          <!--Password-->
+          <label for="pass" class="label">Password:</label>
+          <input type="password" name="pass" id="pass" placeholder="Password" />
+          <span class="error-message"></span>
+          <br /><br />
+
+          <!--Re-Enter Password-->
+          <label for="passtwo" class="label">Re-enter Password:</label>
+          <input
+            type="password"
+            name="passtwo"
+            id="passtwo"
+            placeholder="Password Check"
+          />
+          <span class="error-message"></span>
+          <br /><br />
+
+          <input type="submit" value="register" />
+        </form>
+      </section>
+      <div class="loginOverlay login-hidden"></div>
+      <button class="btn login-open">Login</button>
+      <div class="register-overlay register-hidden"></div>
+      <button class="btn btn-register">Register</button>
+      <script type="text/javascript" src="modal.js"></script>
+      <br />
+      <br />
+      <a href="gol.html">Back to game page</a>
+    </section>
+  </body>
+</html>
