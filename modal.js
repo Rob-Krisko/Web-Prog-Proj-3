@@ -11,23 +11,14 @@ const openRegistrationBtn = document.querySelector(".btn-register");
 const closeRegistrationBtn = document.querySelector(".register-close");
 const registrationForm = document.querySelector(".registration-form");
 
-// Added this function to save user data to localStorage
-function saveUserData(username, password) {
-  const userData = {
-    username: username,
-    password: password,
+// Function to update the user display
+function updateUserDisplay(username) {
+  const usernameElement = document.querySelector('#Username');
+  if (username) {
+    usernameElement.textContent = `Welcome ${username}`;
+  } else {
+    usernameElement.textContent = 'User Not Logged In';
   }
-  localStorage.setItem(username, JSON.stringify(userData));
-}
-
-// Updated this function to retrieve user data from localStorage
-function getUserData(username) {
-  const userData = localStorage.getItem(username);
-  if (userData) {
-    const { password } = JSON.parse(userData);
-    return { password };
-  }
-  return null;
 }
 
 // Modified the registration form event listener
@@ -37,16 +28,34 @@ registrationForm.addEventListener('submit', function (event) {
   const password = document.querySelector('#pass').value;
   const passwordConfirm = document.querySelector('#passtwo').value;
 
-  if (password !== passwordConfirm) {
-    // Passwords do not match
-    console.log('Passwords do not match');
-  } else {
-    saveUserData(username, password);
-    console.log('Registration successful');
-    console.log(username);
-    console.log(password);
-    closeRegister();
-  }
+  // Make an AJAX request to register.php
+  const formData = new FormData();
+  formData.append('name', username);
+  formData.append('pass', password);
+  formData.append('passtwo', passwordConfirm);
+
+  fetch('register.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.success) {
+      closeRegister();
+      localStorage.setItem('loggedInUsername', username);
+      localStorage.setItem('loggedInPassword', password);
+      updateUserDisplay(username);
+    } else {
+      const errorMessages = document.querySelectorAll('.error-message');
+      errorMessages.forEach(function (error) {
+        error.textContent = data.message;
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
 });
 
 // Modified the login form event listener
@@ -54,23 +63,34 @@ loginForm.addEventListener('submit', function (event) {
   event.preventDefault();
   const username = document.querySelector('#username').value;
   const password = document.querySelector('#lpassword').value;
-  const storedUserData = getUserData(username);
 
-  if (storedUserData && storedUserData.password === password) {
-    // authentication successful
-    console.log('Login successful');
-    console.log(username);
-    console.log(password);
-    localStorage.setItem('lastLoggedInUser', username); // Save the last logged-in user
-    closeLogin();
-    updateUserDisplay(username);
-  } else {
-    // authentication failed
-    const errorMessages = document.querySelectorAll('.error-message');
-    errorMessages.forEach(function (error) {
-      error.textContent = 'Invalid username or password';
-    });
-  }
+  // Make an AJAX request to login.php
+  const formData = new FormData();
+  formData.append('username', username);
+  formData.append('lpassword', password);
+
+  fetch('login.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.success) {
+      closeLogin();
+      localStorage.setItem('loggedInUsername', username);
+      localStorage.setItem('loggedInPassword', password);
+      updateUserDisplay(username);
+    } else {
+      const errorMessages = document.querySelectorAll('.error-message');
+      errorMessages.forEach(function (error) {
+        error.textContent = 'Invalid username or password';
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
 });
 
 //------------------------------Login----------------------------
@@ -111,34 +131,24 @@ registrationOverlay.addEventListener("click", closeRegister);
 
 // close modal when the Esc key is pressed
 document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !registrationModal.classList.contains("register-hidden")) {
-      closeRegister();
-    }
-  });
-  
-  // open modal function
-  const openRegister = function () {
-    registrationModal.classList.remove("register-hidden");
-    registrationOverlay.classList.remove("register-hidden");
-  };
-  // open modal event
-  openRegistrationBtn.addEventListener("click", openRegister);
-  
-  // Function to update the user display
-  function updateUserDisplay(username) {
-    const usernameElement = document.querySelector('#Username');
-    if (username) {
-      usernameElement.textContent = `Welcome ${username}`;
-    } else {
-      usernameElement.textContent = 'User Not Logged In';
-    }
+  if (e.key === "Escape" && !registrationModal.classList.contains("register-hidden")) {
+    closeRegister();
   }
-  
-  // Get the last logged-in user's username and update the user display
-  const lastLoggedInUser = localStorage.getItem('lastLoggedInUser');
-  if (lastLoggedInUser) {
-    updateUserDisplay(lastLoggedInUser);
-  } else {
-    updateUserDisplay(null);
-  }
-  
+});
+
+// open modal function
+const openRegister = function () {
+  registrationModal.classList.remove("register-hidden");
+  registrationOverlay.classList.remove("register-hidden");
+};
+// open modal event
+openRegistrationBtn.addEventListener("click", openRegister);
+
+// Get the last logged-in user's username and update the user display
+const lastLoggedInUser = localStorage.getItem('loggedInUsername');
+if (lastLoggedInUser) {
+  updateUserDisplay(lastLoggedInUser);
+} else {
+  updateUserDisplay(null);
+}
+
