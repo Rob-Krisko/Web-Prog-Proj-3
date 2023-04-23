@@ -16,9 +16,13 @@ $username = $_POST['name'];
 $password = $_POST['pass'];
 $passwordConfirm = $_POST['passtwo'];
 
+// Prepare a response array
+$response = array();
+
 if ($password !== $passwordConfirm) {
     // Passwords do not match
-    echo "Passwords do not match.";
+    $response['success'] = false;
+    $response['message'] = "Passwords do not match.";
 } else {
     // Check if the username is already taken
     $sql = "SELECT * FROM GOL_users WHERE username = ?";
@@ -29,7 +33,8 @@ if ($password !== $passwordConfirm) {
 
     if ($result->num_rows > 0) {
         // Username is already taken
-        echo "Username is already taken.";
+        $response['success'] = false;
+        $response['message'] = "Username is already taken.";
     } else {
         // Insert the new user
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -39,12 +44,19 @@ if ($password !== $passwordConfirm) {
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
-            echo "Registration successful. <a href='login.html'>Click here to login</a>";
+            $response['success'] = true;
+            $response['message'] = "Registration successful.";
         } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
+            $response['success'] = false;
+            $response['message'] = "Error: " . $sql . "<br>" . $conn->error;
         }
     }
 }
 
+// Set the content type to JSON and output the JSON response
+header('Content-Type: application/json');
+echo json_encode($response);
+
 $conn->close();
 ?>
+
