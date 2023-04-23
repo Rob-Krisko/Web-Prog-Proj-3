@@ -26,17 +26,23 @@ if ($result->num_rows > 0) {
     // User found, check if the password matches
     $row = $result->fetch_assoc();
     if (password_verify($password, $row['password'])) {
-        // Password is correct, start a session and store the user's ID
+        // Password is correct, start a session and store the user's ID and username
         session_start();
         $_SESSION['user_id'] = $row['id'];
-        header('Location: gol.html'); // Redirect to the game page
+        $_SESSION['username'] = $username;
+
+        // Send a JSON response
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
     } else {
         // Password is incorrect
-        echo "Invalid username or password.";
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Invalid username or password.']);
     }
 } else {
     // User not found
-    echo "Invalid username or password.";
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Invalid username or password.']);
 }
 
 $conn->close();
