@@ -12,7 +12,6 @@ timer = null;
 //score is number of alive cells
 score = 0;
 
-
 // part of troubleshooting, will likely end up removed
 function debounce(func, wait) {
   let timeout;
@@ -669,7 +668,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById('score').innerHTML=alive_count.toString();
-    
+    localStorage.setItem('score', alive_count);
   }
   
   // Add this block of code to detect clicks outside the menu
