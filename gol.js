@@ -569,26 +569,41 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById('modal').classList.remove('active');
   }
 
-  const menuToggle = document.getElementById("menu-toggle");
-  const menu = document.getElementById("menu");
-  const nestedMenuButtons = document.querySelectorAll(".nested-menu-toggle");
-
-  menuToggle.addEventListener("click", function () {
-    menu.classList.toggle("menu-expanded");
-  });
-
+  const dropdowns = document.querySelectorAll(".dropdown");
+  const nestedMenuButtons = document.querySelectorAll(".dropdown-toggle");
+  
   nestedMenuButtons.forEach((button) => {
     button.addEventListener("click", function (event) {
-      console.log('Button Clicked', button);
-      event.stopPropagation(); // Add this line to prevent event bubbling
-      const nestedMenuId = button.id.replace("-btn", "");
-      const nestedMenu = document.getElementById(nestedMenuId);
-
-      if (nestedMenu) {
-        nestedMenu.classList.toggle("nested-menu-active");
+      event.stopPropagation();
+      const dropdownMenu = button.nextElementSibling;
+  
+      if (dropdownMenu) {
+        dropdownMenu.classList.toggle("dropdown-menu-active");
+      }
+  
+      // Close other dropdown menus when a new one is opened
+      dropdowns.forEach((dropdown) => {
+        if (dropdown !== button.parentElement) {
+          dropdown.querySelector(".dropdown-menu").classList.remove("dropdown-menu-active");
+        }
+      });
+    });
+  });
+  
+  // Close dropdown menus when clicking outside
+  document.addEventListener("click", function (event) {
+    dropdowns.forEach((dropdown) => {
+      const dropdownMenu = dropdown.querySelector(".dropdown-menu");
+      if (!dropdown.contains(event.target)) {
+        dropdownMenu.classList.remove("dropdown-menu-active");
       }
     });
   });
+  
+<<<<<<< HEAD
+
+||||||| db0b89a
+  
   
   // Draggable menu functionality
   let isDragging = false;
@@ -632,6 +647,50 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+=======
+  // Draggable menu functionality
+  let isDragging = false;
+  let offsetX, offsetY;
+  
+  menu.addEventListener("mousedown", (event) => {
+    if (menu.classList.contains("menu-expanded")) return;
+    isDragging = true;
+    offsetX = event.clientX - menu.getBoundingClientRect().left;
+    offsetY = event.clientY - menu.getBoundingClientRect().top;
+  });
+  
+  document.addEventListener("mousemove", (event) => {
+    if (!isDragging) return;
+    event.preventDefault();
+    menu.style.left = event.clientX - offsetX + "px";
+    menu.style.top = event.clientY - offsetY + "px";
+    menu.style.right = "auto"; // Reset the 'right' position when dragging
+  });
+  
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+  
+    // Check if the menu goes off-screen and adjust its position if necessary
+    const menuRect = menu.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+  
+    if (menu.classList.contains("menu-expanded")) {
+      if (menuRect.right > windowWidth) {
+        menu.style.left = windowWidth - menuRect.width - 10 + "px";
+        menu.style.right = "auto";
+      }
+  
+      if (menuRect.top < 0) {
+        menu.style.top = "10px";
+      }
+  
+      if (menuRect.bottom > windowHeight) {
+        menu.style.top = windowHeight - menuRect.height - 10 + "px";
+      }
+    }
+  });
+>>>>>>> a85e81490482335c1522d363a3ab4f34250ef263
 
     // Add this block of code to detect clicks outside the menu
     document.addEventListener("click", function (event) {
@@ -698,7 +757,79 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
   
+<<<<<<< HEAD
   
+||||||| db0b89a
+  // Add this block of code to detect clicks outside the menu
+  document.addEventListener("click", function (event) {
+    if (!menu.contains(event.target) && event.target !== menuToggle) {
+      menu.classList.remove("menu-expanded");
+    }
+  });
+  
+  
+=======
+  
+
+  fetch("get_username.php")
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      updateUserDisplay(data.username);
+    } else {
+      updateUserDisplay(null); // Call with null if no user is logged in
+    }
+  });
+
+// Function to update the user display
+function updateUserDisplay(username) {
+  const userDisplay = document.querySelector('#Username');
+  if (username) {
+    userDisplay.textContent = username;
+  } else {
+    userDisplay.textContent = "";
+  }
+}
+
+// Function to update the maximum population
+function updateMaxPopulation(currentPopulation) {
+  const maxPopulationElement = document.querySelector('#maxPopulation');
+  let maxPopulation = parseInt(maxPopulationElement.textContent);
+
+  if (currentPopulation > maxPopulation) {
+    maxPopulationElement.textContent = currentPopulation;
+    // Get the elapsed time from the timer
+    const elapsedTime = minutes * 60 + seconds;
+    // Send the new max population and elapsed time to the server
+    sendGameDataToServer(maxPopulation, elapsedTime);
+  }
+}
+
+function sendGameDataToServer(maxPopulation, elapsedTime) {
+  fetch("get_username.php")
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const loggedInUsername = data.username;
+        console.log('loggedInUsername:', loggedInUsername);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "score.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function () {
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log("Game data sent to server.");
+          }
+        };
+
+        xhr.send(`username=${loggedInUsername}&max_population=${maxPopulation}&elapsed_time=${elapsedTime}`);
+      } else {
+        console.log("User not logged in. Game data not sent.");
+      }
+    });
+}
+>>>>>>> a85e81490482335c1522d363a3ab4f34250ef263
 
   fetch("get_username.php")
   .then(response => response.json())

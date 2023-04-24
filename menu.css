@@ -1,71 +1,77 @@
-/* menu.css */
+.menu-btn {
+  display: inline-block;
+  background-color: turquoise;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
 
-#menu {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
-  }
-  
-  #menu-toggle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    background-color: #2196F3;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-  
-  .menu-btn {
-    display: none;
-  }
-  
-  .nested-menu {
-    display: none;
-    padding: 10px;
-    background-color: #f1f1f1;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-top: 5px;
-  }
-  
-  .menu-label {
-    display: block;
-    margin: 5px 0;
-  }
-  
-  .menu-input {
-    width: 100%;
-    margin-bottom: 5px;
-  }
-  
-  .menu-expanded #menu-toggle {
-    background-color: transparent;
-    border-radius: 5px;
-    width: auto;
-    padding: 10px;
-  }
-  
-  .menu-expanded .menu-btn {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .menu-expanded .nested-menu-btn {
-    display: block;
-    cursor: pointer;
-    margin-bottom: 5px;
-  }
-  
-  .menu-expanded .nested-menu-active {
-    display: block;
-  }
-    
-  #menu .menu-expanded .nested-menu {
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  
+.dropdown {
+  position: relative;
+  display: inline-block;
+  color: black;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  min-width: 160px;
+  padding: 12px 16px;
+  background-color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.menu-label {
+  display: block;
+  margin: 5px 0;
+}
+
+.menu-input {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  background-color: black;
+  color: white;
+}
+
+.scores {
+  display: inline-block;
+}
+
+#scores #time{
+  color:yellow;
+  font-size: 17pt;
+}
+#scores #generation{
+  color: yellow;
+  font-size: 17pt;
+}
+
+#scores #score{
+  color: yellow;
+  font-size: 17pt;
+}
+
+#scores #maxPopulation{
+  color: yellow;
+  font-size: 17pt;
+}
+
+.menu-btn:not(:last-child) {
+  margin-right: 10px;
+}

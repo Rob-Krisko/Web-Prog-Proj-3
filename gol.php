@@ -42,6 +42,23 @@ session_start();
   </div>
   <div id="overlay"></div>
   <header>
+<<<<<<< HEAD:gol.html
+    <div class="header-row">
+        <div id="scores">
+        <span id="Username"><?php echo isset($_SESSION['user_id']) ? $_SESSION['username'] : ''; ?></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
+        </div>
+        <div id="menu-buttons" style="display: flex; justify-content: flex-end;">
+||||||| db0b89a:gol.html
+    <div id="scores">
+    Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Score: <h1 id="score">0</h1>
+    </div>
+  </header>
+  <div id="game-container">
+    
+    <canvas id="game-of-life-canvas"></canvas>
+    <div id="menu">
+      <div id="menu-toggle">
+=======
     <div id="scores">
     <span id="Username"><?php echo isset($_SESSION['user_id']) ? $_SESSION['username'] : ''; ?></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
     </div>
@@ -52,31 +69,46 @@ session_start();
     <canvas id="game-of-life-canvas"></canvas>
     <div id="menu">
       <div id="menu-toggle">
+>>>>>>> a85e81490482335c1522d363a3ab4f34250ef263:gol.php
         <button class="menu-btn" id="start-btn">Start</button>
         <button class="menu-btn" id="reset-btn">Reset</button>
         <button class="menu-btn" id="next-btn">Next Generation</button>
         <button class="menu-btn" id="next-23-gen-btn">Next 23 Generations</button>
-        <button class="menu-btn nested-menu-toggle" id="nested-menu-1-btn">Settings</button>
-        <div class="nested-menu" id="nested-menu-1">
-          <label class="menu-label" for="populate-percentage-input">Population Percentage:</label>
-          <input class="menu-input" type="range" id="populate-percentage-input" min="0" max="100" step="1" value="30">
-          <label class="menu-label" for="speed-input">Speed:</label>
-          <input class="menu-input" type="range" id="speed-input" min="0" max="1000" step="10" value="100">
-          <label class="menu-label" for="cell-size-slider">Resize cells:</label>
-          <input class="menu-input" type="range" min="5" max="50" value="15" class="slider" id="cell-size-slider">
+
+        <div class="dropdown">
+        <button class="menu-btn dropdown-toggle" id="settings-dropdown">Settings</button>
+        <div class="dropdown-menu" id="settings-menu">
+            <label class="menu-label" for="populate-percentage-input">Population Percentage:</label>
+            <input class="menu-input" type="range" id="populate-percentage-input" min="0" max="100" step="1" value="30">
+            <label class="menu-label" for="speed-input">Speed:</label>
+            <input class="menu-input" type="range" id="speed-input" min="0" max="1000" step="10" value="100">
+            <label class="menu-label" for="cell-size-slider">Resize cells:</label>
+            <input class="menu-input" type="range" min="5" max="50" value="15" class="slider" id="cell-size-slider">
         </div>
-        <button class="menu-btn nested-menu-toggle" id="nested-menu-2-btn">Color</button>
-        <div class="nested-menu" id="nested-menu-2">
-          <label class="menu-label" for="cell-color-picker">Cell Color:</label>
-          <input class="menu-input" type="color" id="cell-color-picker">
-          <label class="menu-label" for="grid-color-picker">Grid Color:</label>
-          <input class="menu-input" type="color" id="grid-color-picker">
-          <label class="menu-label" for="background-color-picker">Background Color:</label>
-          <input class="menu-input" type="color" id="background-color-picker">
         </div>
+
+        <div class="dropdown">
+        <button class="menu-btn dropdown-toggle" id="color-dropdown">Color</button>
+        <div class="dropdown-menu" id="color-menu">
+            <label class="menu-label" for="cell-color-picker">Cell Color:</label>
+            <input class="menu-input" type="color" id="cell-color-picker">
+            <label class="menu-label" for="grid-color-picker">Grid Color:</label>
+            <input class="menu-input" type="color" id="grid-color-picker">
+            <label class="menu-label" for="background-color-picker">Background Color:</label>
+            <input class="menu-input" type="color" id="background-color-picker">
+        </div>
+        </div>
+
         <button class="menu-btn" id="open-popup" data-modal-target="#modal">Open Popup</button>
-      </div>
+        </div>
     </div>
+    </header>
+
+
+  
+  <div id="game-container">
+    
+    <canvas id="game-of-life-canvas"></canvas>
   </div>
   <footer id="shapes-footer">
     <div class="shapes-container">
