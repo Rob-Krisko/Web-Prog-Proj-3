@@ -42,34 +42,11 @@ session_start();
   </div>
   <div id="overlay"></div>
   <header>
-<<<<<<< HEAD:gol.html
     <div class="header-row">
         <div id="scores">
         <span id="Username"><?php echo isset($_SESSION['user_id']) ? $_SESSION['username'] : ''; ?></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
         </div>
         <div id="menu-buttons" style="display: flex; justify-content: flex-end;">
-||||||| db0b89a:gol.html
-    <div id="scores">
-    Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Score: <h1 id="score">0</h1>
-    </div>
-  </header>
-  <div id="game-container">
-    
-    <canvas id="game-of-life-canvas"></canvas>
-    <div id="menu">
-      <div id="menu-toggle">
-=======
-    <div id="scores">
-    <span id="Username"><?php echo isset($_SESSION['user_id']) ? $_SESSION['username'] : ''; ?></span> Time: <h1 id="time">00:00  </h1> Current generation: <h1 id="generation">0</h1>  Current Population: <h1 id="score">0</h1> Maximum Population: <h1 id="maxPopulation">0</h1>
-    </div>
-  </header>
-  
-  <div id="game-container">
-    
-    <canvas id="game-of-life-canvas"></canvas>
-    <div id="menu">
-      <div id="menu-toggle">
->>>>>>> a85e81490482335c1522d363a3ab4f34250ef263:gol.php
         <button class="menu-btn" id="start-btn">Start</button>
         <button class="menu-btn" id="reset-btn">Reset</button>
         <button class="menu-btn" id="next-btn">Next Generation</button>
